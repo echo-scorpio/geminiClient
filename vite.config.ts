@@ -4,7 +4,7 @@
  * @Author: lc
  * @Date: 2023-12-12 09:12:11
  * @LastEditors: lc
- * @LastEditTime: 2023-12-29 10:36:28
+ * @LastEditTime: 2024-01-17 15:35:48
  */
 import { fileURLToPath, URL } from 'node:url'
 import AutoImport from 'unplugin-auto-import/vite'
@@ -17,6 +17,7 @@ import {generateModifyVars} from './src/config/themeConfig.ts'
 export default defineConfig(({ command, mode }) => {
   const isBuild = command === 'build' //是否是生产环境  
   return {
+    base: './',
     plugins: getPlugins(isBuild),
     resolve: {
       alias: {

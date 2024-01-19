@@ -4,17 +4,23 @@
  * @Author: lc
  * @Date: 2023-12-12 09:12:11
  * @LastEditors: lc
- * @LastEditTime: 2024-01-15 17:33:21
+ * @LastEditTime: 2024-01-17 17:02:27
  */
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory,createWebHashHistory } from 'vue-router'
 import HomeView from '@/views/home/index.vue'
-import {generateRouter} from './permission.ts'
+import { generateRouter } from './permission.ts'
 import Layout from '@/components/layout/index.vue'
-const staticRoutes=[
+const staticRoutes = [
   {
-    path:'/chat',
-    meta:{title:'聊天页'},
-    component: () => import("@/views/gimini/chat.vue"),
+    path: '/',
+    redirect: '/chat',
+    children: [
+      {
+        path: '/chat',
+        meta: { title: '聊天页' },
+        component: () => import("@/views/gimini/chat.vue"),
+      },
+    ]
   },
   {
     path: "/transfer/:path/:afterUser(.*)?",
@@ -22,11 +28,11 @@ const staticRoutes=[
     props: true,
     component: () => import("@/components/layout/components/transfer.vue"),
   },
-  
+
 ]
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes:staticRoutes
+  history: createWebHashHistory(),
+  routes: staticRoutes
 })
 
 // const dynamicRoutes=generateRouter()
