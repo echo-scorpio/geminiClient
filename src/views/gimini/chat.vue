@@ -4,7 +4,7 @@
  * @Author: lc
  * @Date: 2024-01-15 09:46:56
  * @LastEditors: lc
- * @LastEditTime: 2024-01-19 17:36:44
+ * @LastEditTime: 2024-01-22 10:22:13
 -->
 <template>
   <a-row class="chat-container">
@@ -39,7 +39,7 @@
         <a-button @click="handleAddGroup" type="primary" ghost
           >添加分组</a-button
         >
-        <a-button type="dashed" @click="goGithub"><github-outlined /></a-button>
+        <!-- <a-button type="dashed" @click="goGithub"><github-outlined /></a-button> -->
       </div>
     </a-col>
     <a-col :span="20">
