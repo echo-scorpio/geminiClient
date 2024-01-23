@@ -4,7 +4,7 @@
  * @Author: lc
  * @Date: 2024-01-15 09:46:56
  * @LastEditors: lc
- * @LastEditTime: 2024-01-22 10:22:13
+ * @LastEditTime: 2024-01-23 15:40:12
 -->
 <template>
   <a-row class="chat-container">
@@ -63,7 +63,7 @@
             </template>
             <!-- 非编辑状态 -->
             <template v-else>
-              <span class="bold"> {{ currentGroup.title }}</span>
+              <span class="bold"> {{ currentGroup?.title }}</span>
               <a-button
                 @click="editable = true"
                 type="dashed"
@@ -73,7 +73,7 @@
             </template>
           </p>
           <div class="font-12">
-            <span>共{{ currentGroup.chatData.length }}条对话</span>
+            <span>共{{ currentGroup?.chatData?.length ?? 0 }}条对话</span>
           </div>
         </div>
         <div class="chat-history">
@@ -142,8 +142,9 @@ import "@kangc/v-md-editor/lib/theme/style/vuepress.css";
 import Prism from "prismjs";
 // 代码高亮
 import "prismjs/components/prism-json";
-import { describe } from "node:test";
+import { describe, it } from "node:test";
 import { dateFormat } from "@/utils/utils.ts";
+import { encodeStream } from "@/utils/openAI.ts";
 // 选择使用主题
 VMdPreview.use(vuepressTheme, {
   Prism,
@@ -198,8 +199,12 @@ const chatGroupData: any = computed({
       };
       genimi_store.setChatContent(defaultChatGroup);
       updateKey(defaultChatGroup);
+      return genimi_store.chatContentList;
+    } else {
+      const item = genimi_store.chatContentList[0];
+      changeChatGroup(item);
+      return genimi_store.chatContentList;
     }
-    return genimi_store.chatContentList;
   },
 });
 
@@ -228,23 +233,38 @@ async function run(generateSearchData: ChatMessage[]) {
     topP: 1,
     maxOutputTokens: 2048,
   };
-
-  const result = await model.generateContent({
+  const result: any = await model.generateContentStream({
     contents: generateSearchData,
     generationConfig,
   });
-  const response = result.response;
-  genimi_store.updateChatContent(
-    { text: response.text(), role: "model" },
+  return encodeStream(result);
+}
+async function decodeStream(responseStream) {
+  let done = false;
+  const decoder = new TextDecoder("utf-8");
+
+  const reader = responseStream.body.getReader();
+  let messageKey = genimi_store.updateChatContent(
+    { text: "", role: "model", key: getKey() },
     activeGroupKey.value
   );
+  while (!done) {
+    const { value, done: readerDone } = await reader.read();
+    if (value) {
+      let str = decoder.decode(value, { stream: true });
+      genimi_store.updateMessage(str, activeGroupKey.value, messageKey);
+    }
+
+    done = readerDone;
+  }
 }
-const handleQuery = () => {
+async function handleQuery() {
   if (!queryValue.value) {
     message.error("请输入内容");
     return;
   }
   loading.value = true;
+
   const generateSearchData: ChatMessage = {
     role: "user",
     text: queryValue.value,
@@ -257,16 +277,13 @@ const handleQuery = () => {
       role: item.role,
     });
   });
-
-  run(messages)
-    .then(() => {
-      loading.value = false;
-    })
-    .catch(() => {
-      loading.value = false;
-    });
   queryValue.value = "";
-};
+
+  const responseStream = await run(messages);
+
+  await decodeStream(responseStream);
+  loading.value = false;
+}
 //添加聊天分组
 const handleAddGroup = () => {
   let defaultChatGroup = {
@@ -277,10 +294,10 @@ const handleAddGroup = () => {
   genimi_store.setChatContent(defaultChatGroup);
 };
 //点击切换聊天分组
-const changeChatGroup=(record)=>{
-  activeGroupKey.value=record.t;
-  currentGroup.value =record;
-}
+const changeChatGroup = (record) => {
+  activeGroupKey.value = record.t;
+  currentGroup.value = record;
+};
 //删除聊天分组
 const deleteGroup = (index) => {
   genimi_store.deleteChatGroup(index);
@@ -293,9 +310,6 @@ const handleClear = () => {
 const formatDate = (time) => {
   return dateFormat(new Date(time));
 };
-const goGithub=()=>{
-  window.open('https://github.com/echo-scorpio/geminiClient')
-}
 </script>
 <style lang="less" scoped>
 .chat-container {

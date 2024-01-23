@@ -1,3 +1,11 @@
+<!--
+ * @Descripttion: 
+ * @version: 
+ * @Author: lc
+ * @Date: 2023-12-12 09:12:11
+ * @LastEditors: lc
+ * @LastEditTime: 2024-01-23 16:11:47
+-->
 # 基于Google gemini API的聊天客户端
 
 ## 使用技术介绍
@@ -15,8 +23,9 @@ vue3+ts+vite+pinia搭建项目，使用ant-design组件库，搭建页面
 - [x] 聊天分组增删改
 - [x] 调用gemini API，与gemini聊天
 - [x] 删除分组下的聊天记录
-- [ ] 缓存聊天数据
-- [ ] gemini流式输出
+- [x] 缓存聊天数据
+- [x] gemini流式输出
+- [ ] 中断聊天 功能
 - [ ] “设置”功能，包含设置API key、模型、Top K、Top P等功能
 
 ## 项目运行

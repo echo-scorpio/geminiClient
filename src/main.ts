@@ -17,12 +17,16 @@ import Antd from 'ant-design-vue';
 import * as Icons from '@ant-design/icons-vue';
 
 import 'ant-design-vue/dist/antd.css';
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
+
 const app = createApp(App)
 const icons : any  = Icons;
 for (const i in icons) {
     app.component(i, icons[i]);
   }
-app.use(createPinia())
+const pinia =createPinia();
+pinia.use(piniaPluginPersistedstate);
+app.use(pinia)
 app.use(router)
 app.use(Antd)
 
