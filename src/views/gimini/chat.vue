@@ -4,7 +4,15 @@
  * @Author: lc
  * @Date: 2024-01-15 09:46:56
  * @LastEditors: lc
- * @LastEditTime: 2024-01-23 15:40:12
+ * @LastEditTime: 2024-01-30 11:09:24
+-->
+<!--
+ * @Descripttion: 
+ * @version: 
+ * @Author: lc
+ * @Date: 2024-01-15 09:46:56
+ * @LastEditors: lc
+ * @LastEditTime: 2024-01-30 10:01:10
 -->
 <template>
   <a-row class="chat-container">
@@ -33,7 +41,7 @@
         </div>
       </div>
       <div class="flex-spb group-footer">
-        <a-button @click="message.warning('开发中')" type="default"
+        <a-button @click="handleSetting" type="default"
           ><setting-outlined
         /></a-button>
         <a-button @click="handleAddGroup" type="primary" ghost
@@ -128,6 +136,22 @@
       </div>
     </a-col>
   </a-row>
+  <!-- 设置 -->
+  <a-drawer
+    v-model:visible="settingState.drawerVisible"
+    class="custom-class"
+    title="设置"
+    placement="right"
+    width="35%"
+  >
+    <settings v-model:form="settingState.formData"></settings>
+    <template #footer>
+      <a-button @click="handleSave" type="primary" style="margin-right: 10px"
+        >保存</a-button
+      >
+      <a-button @click="handleCancel">取消</a-button>
+    </template>
+  </a-drawer>
 </template>
 <script lang="ts" setup>
 import { GoogleGenerativeAI } from "@google/generative-ai";
@@ -145,6 +169,8 @@ import "prismjs/components/prism-json";
 import { describe, it } from "node:test";
 import { dateFormat } from "@/utils/utils.ts";
 import { encodeStream } from "@/utils/openAI.ts";
+import settings from "./components/settings.vue";
+import { json } from "stream/consumers";
 // 选择使用主题
 VMdPreview.use(vuepressTheme, {
   Prism,
@@ -158,6 +184,10 @@ const loading = ref(false);
 const tempKey = ref();
 const currentGroup = ref({});
 const editable = ref(false); //编辑状态
+const settingState = reactive({
+  drawerVisible: false,
+  formData: {},
+});
 //左侧选中的聊天分组的key
 const activeGroupKey: any = computed({
   set(val: number) {
@@ -224,13 +254,15 @@ const chatHistoryList = computed(() => {
 });
 
 async function run(generateSearchData: ChatMessage[]) {
-  const genAI = new GoogleGenerativeAI(API_KEY);
-  const model = genAI.getGenerativeModel({ model: MODEL_NAME });
+  const settingData = genimi_store.settingData;
+
+  const genAI = new GoogleGenerativeAI(settingData.apiKey);
+  const model = genAI.getGenerativeModel({ model: settingData.model });
 
   const generationConfig = {
-    temperature: 0.9,
-    topK: 1,
-    topP: 1,
+    temperature: settingData.temperature,
+    topK: settingData.topK,
+    topP: settingData.topP,
     maxOutputTokens: 2048,
   };
   const result: any = await model.generateContentStream({
@@ -263,6 +295,10 @@ async function handleQuery() {
     message.error("请输入内容");
     return;
   }
+  if (!genimi_store.settingData.apiKey) {
+    message.error("请设置apiKey");
+    return;
+  }
   loading.value = true;
 
   const generateSearchData: ChatMessage = {
@@ -280,7 +316,6 @@ async function handleQuery() {
   queryValue.value = "";
 
   const responseStream = await run(messages);
-
   await decodeStream(responseStream);
   loading.value = false;
 }
@@ -309,6 +344,21 @@ const handleClear = () => {
 //格式化日期
 const formatDate = (time) => {
   return dateFormat(new Date(time));
+};
+//设置
+const handleSetting = () => {
+  settingState.drawerVisible = true;
+  settingState.formData = JSON.parse(JSON.stringify(genimi_store.settingData));
+};
+//保存取消
+const handleCancel = () => {
+  settingState.drawerVisible = false;
+};
+//保存确认
+const handleSave = () => {
+  genimi_store.settingData = JSON.parse(JSON.stringify(settingState.formData));
+  settingState.drawerVisible = false;
+  message.success("保存成功");
 };
 </script>
 <style lang="less" scoped>

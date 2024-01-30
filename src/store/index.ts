@@ -4,7 +4,7 @@
  * @Author: lc
  * @Date: 2023-12-19 13:58:08
  * @LastEditors: lc
- * @LastEditTime: 2024-01-23 09:43:48
+ * @LastEditTime: 2024-01-30 10:41:13
  */
 import { defineStore } from 'pinia';
 import { user } from './models/user';
@@ -21,6 +21,6 @@ export const userStore = defineStore({
     persist: {
       key: 'vuex-store',
       storage: localStorage,
-      paths: ['chatContentList'], //数据持久化需要缓存的状态，不填则默认将state中的状态全部缓存
+      paths: ['chatContentList','settingData'], //数据持久化需要缓存的状态，不填则默认将state中的状态全部缓存
     },
   });

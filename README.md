@@ -4,7 +4,7 @@
  * @Author: lc
  * @Date: 2023-12-12 09:12:11
  * @LastEditors: lc
- * @LastEditTime: 2024-01-23 16:11:47
+ * @LastEditTime: 2024-01-30 11:08:40
 -->
 # 基于Google gemini API的聊天客户端
 
@@ -25,8 +25,8 @@ vue3+ts+vite+pinia搭建项目，使用ant-design组件库，搭建页面
 - [x] 删除分组下的聊天记录
 - [x] 缓存聊天数据
 - [x] gemini流式输出
+- [x] “设置”功能，包含设置API key、模型、Top K、Top P等功能
 - [ ] 中断聊天 功能
-- [ ] “设置”功能，包含设置API key、模型、Top K、Top P等功能
 
 ## 项目运行
 
@@ -34,7 +34,7 @@ vue3+ts+vite+pinia搭建项目，使用ant-design组件库，搭建页面
 /*注意事项
 使用gemini API前，需要先申请google gemini key，
 申请地址：https://makersuite.google.com/app/apikey，api key免费申请，
-申请成功后，将api key复制到 项目的.env.development中，替换VITE_GEMINI_API_KEY
+申请成功后，将api key复制到设置弹框的apiKey输入框中
 */
 
 //克隆项目
